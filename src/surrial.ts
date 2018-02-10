@@ -25,7 +25,7 @@ function escapeUnsafeChars(unsafeChar: string) {
 }
 
 /**
- * Deserializes a string into it's javascript equivalent. CAUTION! Evaluates the string in the current javascript engine 
+ * Deserializes a string into it's javascript equivalent. CAUTION! Evaluates the string in the current javascript engine
  * (`eval` or one of its friends). Be sure the `serializedThing` comes from a trusted source!
  * @param serializedThing The string to deserialize
  * @param knownClasses A list of known classes used to provide as constructor functions
