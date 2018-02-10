@@ -1,0 +1,9 @@
+.stryker-tmp
+reports
+node_modules
+src/**/*.js
+src/**/*.d.ts
+test/**/*.js
+test/**/*.d.ts
+*.map
+.nyc_output

@@ -1,0 +1,11 @@
+language: node_js
+node_js:
+- node
+- lts/*
+- '6'
+install: npm install
+before_install:
+- if [[ `npm -v` = 2* ]]; then npm i -g npm@3; fi
+env:
+  global:
+    secure: KceGNeB5b1Lj0nTX6rQHairT6KxVI61R6zug/VLZ2vaXENQQZa5KH0jeYRgt24j4Z25Bo2hQZS4foKJuoD4Ak+NEW1ffnwhU9gGXWLgwYKMIecImxRuIOEIjURmpCkYCv4imUaMGfu6Nbo6OWjzcPkkw3ow56/Wk898H6VUSKrVqaXXz6qVpntJ1vgfXB6tfanaqv6wM1E18XvyaQuGim7vzZNMX1IFU/QLXCpQQ2syxVEP0/LWJiVPL2psAwZ1FHKa+AS+sGmhVnEkRkpkMxIYOkRHuoxLqOXPf65XpqjQxz4Bws1X08GLyJajZrEI9IWypNTsGvKodaC8XpjMduxZiQ29OOtvBLhPPPMh5orYOmrjWL/tAvMyVljr5y9mKjP/fVwyDDIA4OkAY+f9H3dFNtjJL0NNzYKT8PQHB1UZ60MyIUvj04Opttc6xwv1UVrQjNSg5/VQtjtgC1iLO0IAYH6lKSG9QwSsXeGgBv2nE7HDd2mwVlzbqWhBWRbEWtOye2IKCVf1R88LT07qQNWMSqA65kLO1k19tjNOXIoP1kLLNu+2b6cBJTjMOY02EIyqUPJg5vq6qfIDyWb92lac8mv4tpor6bw6V813SjlLMaYtR4OEJ5gt/OeQkAiqkUjdRZu5jMMiJN9ea5jHwzg9TLclBU+WcQutx1Nh8M2o=
