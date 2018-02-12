@@ -1,4 +1,4 @@
-import { isClassInstance, isFunction, getParamList } from './helpers';
+import { isClassInstance, getParamList } from './helpers';
 import ClassConstructor from './ClassConstructor';
 
 const UID = Math.floor(Math.random() * 0x10000000000).toString(16);
@@ -39,23 +39,27 @@ export function deserialize<T = any>(serializedThing: string, knownClasses: Clas
  * Serializes the thing to a javascript string. This NOT necessarily a JSON string, but will be valid javascript.
  * @param thing The thing to be serialized
  */
-export function serialize(thing: any) {
+export function serialize(thing: any): string {
     if (thing instanceof Date) {
-        return dateToString(thing);
+        return serializeDate(thing);
     } else if (thing instanceof RegExp) {
         return thing.toString();
-    } else if (isFunction(thing)) {
-        return functionToString(thing);
+    } else if (typeof thing === 'function') {
+        return serializeFunction(thing);
     } else if (thing instanceof Buffer) {
-        return bufferToString(thing);
+        return serializeBuffer(thing);
+    } else if (thing instanceof Set) {
+        return serializeSet(thing);
+    } else if (thing instanceof Map) {
+        return serializeMap(thing);
     } else if (isClassInstance(thing)) {
-        return classInstanceToString(thing);
+        return serializeClassInstance(thing);
     } else {
-        return valueToString(thing);
+        return stringifyObject(thing);
     }
 }
 
-function valueToString(thing: any): string {
+function stringifyObject(thing: any): string {
     const escapedValues: any[] = [];
 
     // Returns placeholders for functions and regexps (identified by index)
@@ -68,7 +72,7 @@ function valueToString(thing: any): string {
         // If the value is an object w/ a toJSON method, toJSON is called before
         // the replacer runs, so we use this[key] to get the non-toJSONed value.
         const origValue = this[key];
-        if (isClassInstance(origValue) || isFunction(origValue)) {
+        if (isClassInstance(origValue)) {
             return `@__${UID}-${escapedValues.push(origValue) - 1}__@`;
         } else {
             return value;
@@ -98,15 +102,27 @@ function valueToString(thing: any): string {
     }
 }
 
-function dateToString(value: Date) {
+function serializeSet(value: Set<any>) {
+    const valuesArray: string[] = [];
+    value.forEach(v => valuesArray.push(serialize(v)));
+    return `new Set([${valuesArray.join(', ')}])`;
+}
+
+function serializeMap(map: Map<any, any>): string {
+    const valuesArray: string[] = [];
+    map.forEach((value, key) => valuesArray.push(`[${serialize(key)}, ${serialize(value)}]`));
+    return `new Map([${valuesArray.join(', ')}])`;
+}
+
+function serializeDate(value: Date) {
     return `new Date("${value.toISOString()}")`;
 }
 
-function bufferToString(value: Buffer) {
+function serializeBuffer(value: Buffer) {
     return `Buffer.from("${value.toString()}")`;
 }
 
-function classInstanceToString(instance: any): string {
+function serializeClassInstance(instance: any): string {
     const constructor: ClassConstructor = instance.constructor;
     const params = getParamList(constructor);
     const paramValues = params.map(param => serialize(instance[param]));
@@ -114,11 +130,11 @@ function classInstanceToString(instance: any): string {
     return newExpression;
 }
 
-function functionToString(fn: Function) {
+function serializeFunction(fn: Function) {
     const serializedFn = fn.toString();
 
     if (IS_NATIVE_CODE_REGEXP.test(serializedFn)) {
-        throw new TypeError(`Serializing native function: ${fn.name}`);
+        throw new TypeError(`Cannot serialize native function: ${fn.name}`);
     }
 
     return serializedFn;

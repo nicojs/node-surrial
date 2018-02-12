@@ -4,10 +4,6 @@ export function isClassInstance(thing: any) {
     return typeof thing === 'object' && thing && thing.constructor && thing.constructor !== Object;
 }
 
-export function isFunction(thing: any): thing is Function {
-    return typeof thing === 'function';
-}
-
 function isEcmaScriptClass(constructor: ClassConstructor) {
     return constructor.toString().startsWith('class');
 }

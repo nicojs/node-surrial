@@ -1,7 +1,6 @@
-import * as path from 'path';
 import { expect } from 'chai';
 import * as surrial from '../../src/surrial';
-import { ExternalPerson } from '../../testResources/classes';
+import { ESPerson, PrototypePerson } from '../../testResources/classes';
 
 describe('surrial', () => {
 
@@ -50,15 +49,43 @@ describe('surrial', () => {
         expect(actual).eq('new Person("foo", new Person("bar", new Person("baz", null)))');
     });
 
-    it.skip('should be able to deserialize an instance of a class with a $moduleName defined', () => {
-        const input = new ExternalPerson('Foo', 42);
+    it('should be able to deserialize an instance of an ES class', () => {
+        const input = new ESPerson('Foo', 42);
         const actual = surrial.serialize(input);
-        const expected = `new (require('${path.resolve(__dirname, '..', '..', 'testResources', 'classes.js').replace(/\\/g, '/')
-            }').ExternalPerson)("Foo", 42)`;
+        const expected = `new ESPerson("Foo", 42)`;
+        const output = surrial.deserialize(actual, [ESPerson]);
         expect(actual).eq(expected);
-        const output = surrial.deserialize(actual);
-        expect(output).instanceof(ExternalPerson);
+        expect(output).instanceof(ESPerson);
         expect(output).deep.eq(input);
+    });
+
+    it('should be able to deserialize an instance of a prototypical class', () => {
+        const input = new PrototypePerson('Foo', 42);
+        const actual = surrial.serialize(input);
+        const expected = `new PrototypePerson("Foo", 42)`;
+        const output = surrial.deserialize(actual, [PrototypePerson]);
+        expect(actual).eq(expected);
+        expect(output).instanceof(PrototypePerson);
+        expect(output).deep.eq(input);
+    });
+
+    it('should throw an error when serializing a native function', () => {
+        expect(() => surrial.serialize(String))
+            .throws('Cannot serialize native function: String');
+    });
+
+    it('should be able to serialize a Set', () => {
+        const input = new Set([42, 'foo', undefined, null]);
+        const actual = surrial.serialize(input);
+        const output = surrial.deserialize<Set<any>>(actual);
+        expectSetEquals(input, output);
+    });
+
+    it('should be able to serialize a Map', () => {
+        const input = new Map<any, any>([[1, '1'], ['2', 2]]);
+        const actual = surrial.serialize(input);
+        const output = surrial.deserialize<Map<any, any>>(actual);
+        expectMapEquals(input, output);
     });
 
     it('should be able to serialize buffers', () => {
@@ -67,4 +94,14 @@ describe('surrial', () => {
         const output = surrial.deserialize<Buffer>(actual);
         expect(input.toString()).eq(output.toString());
     });
+
+    function expectSetEquals(actual: Set<any>, expected: Set<any>): void {
+        expect(actual.size).eq(expected.size);
+        expected.forEach(expectedValue => expect(actual).contains(expectedValue));
+    }
+
+    function expectMapEquals(actual: Map<any, any>, expected: Map<any, any>): void {
+        expect(actual.size).eq(expected.size);
+        expected.forEach((expectedValue, expectedKey) => expect(actual.get(expectedKey)).deep.eq(expectedValue));
+    }
 });
