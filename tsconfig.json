@@ -15,6 +15,7 @@
     "noFallthroughCasesInSwitch": true,
     "noImplicitThis": true,
     "noImplicitAny": true,
-    "noImplicitReturns": true
+    "noImplicitReturns": true,
+    "alwaysStrict": true
   }
 }

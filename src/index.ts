@@ -1,5 +1,6 @@
 import { isClassInstance, getParamList } from './helpers';
 import ClassConstructor from './ClassConstructor';
+import { EOL } from 'os';
 
 const UID = Math.floor(Math.random() * 0x10000000000).toString(16);
 const UNSAFE_CHARS_REGEXP = /[<>\/\u2028\u2029]/g;
@@ -31,7 +32,7 @@ function escapeUnsafeChars(unsafeChar: string) {
  * @param knownClasses A list of known classes used to provide as constructor functions
  */
 export function deserialize<T = any>(serializedThing: string, knownClasses: ClassConstructor[] = []): T {
-    const evalFn = new Function(...knownClasses.map(t => t.name), `return (${serializedThing});`);
+    const evalFn = new Function(...knownClasses.map(t => t.name), `"use strict";${EOL}return (${serializedThing});`);
     return evalFn.apply(null, knownClasses);
 }
 
