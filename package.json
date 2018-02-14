@@ -1,8 +1,9 @@
 {
   "name": "surrial",
   "version": "0.0.0",
-  "description": "Serialize anything? This is surreal!",
-  "main": "index.js",
+  "description": "Serialize anything. This is surreal!",
+  "main": "src/index.js",
+  "types": "src/index.d.ts",
   "scripts": {
     "clean": "rimraf \"+(src|test)/**/+(*.map|*.js|*.d.ts)\"",
     "prebuild": "npm run clean",

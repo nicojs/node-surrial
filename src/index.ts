@@ -36,7 +36,7 @@ export function deserialize<T = any>(serializedThing: string, knownClasses: Clas
 }
 
 /**
- * Serializes the thing to a javascript string. This NOT necessarily a JSON string, but will be valid javascript.
+ * Serializes the thing to a javascript string. This is NOT necessarily a JSON string, but will be valid javascript.
  * @param thing The thing to be serialized
  */
 export function serialize(thing: any): string {
@@ -72,7 +72,7 @@ function stringifyObject(thing: any): string {
         // If the value is an object w/ a toJSON method, toJSON is called before
         // the replacer runs, so we use this[key] to get the non-toJSONed value.
         const origValue = this[key];
-        if (isClassInstance(origValue)) {
+        if (isClassInstance(origValue) || typeof origValue === 'function') {
             return `@__${UID}-${escapedValues.push(origValue) - 1}__@`;
         } else {
             return value;

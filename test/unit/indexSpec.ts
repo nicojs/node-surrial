@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import * as surrial from '../../src/surrial';
+import * as surrial from '../../src/index';
 import { ESPerson, PrototypePerson } from '../../testResources/classes';
 
 describe('surrial', () => {
@@ -16,6 +16,13 @@ describe('surrial', () => {
         }
         const actual = surrial.serialize(foobar);
         expect(actual).eq(foobar.toString());
+    });
+
+    it('should serialize classes', () => {
+        const actual = surrial.serialize(ESPerson);
+        const output = surrial.deserialize(actual);
+        expect(actual).eq(ESPerson.toString());
+        expect(output.name).eq('ESPerson');
     });
 
     it('should serialize Date', () => {
@@ -93,6 +100,20 @@ describe('surrial', () => {
         const actual = surrial.serialize(input);
         const output = surrial.deserialize<Buffer>(actual);
         expect(input.toString()).eq(output.toString());
+    });
+
+    it('should be able to serialize a combination of everything', () => {
+        const input = {
+            a: 1,
+            b: new Date(),
+            c: /foo/,
+            d: new Set([1, 2, 3]),
+            e: new Map([[1, 'one'], [2, 'two']]),
+            g: new ESPerson('Foo', 25)
+        };
+        const actual = surrial.serialize(input);
+        const output = surrial.deserialize(actual, [ESPerson]);
+        expect(output).deep.eq(input);
     });
 
     function expectSetEquals(actual: Set<any>, expected: Set<any>): void {
