@@ -1,3 +1,13 @@
+<a name="0.1.1"></a>
+## [0.1.1](https://github.com/nicojs/node-surrial/compare/v0.1.0...v0.1.1) (2018-02-16)
+
+
+### Bug Fixes
+
+* **buffer:** support binary data as buffer ([7dc94bb](https://github.com/nicojs/node-surrial/commit/7dc94bb))
+
+
+
 <a name="0.1.0"></a>
 # 0.1.0 (2018-02-16)
 
