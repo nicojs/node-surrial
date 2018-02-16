@@ -1,3 +1,5 @@
+import * as fs from 'fs';
+import * as path from 'path';
 import { expect } from 'chai';
 import * as surrial from '../../src/index';
 import { ESPerson, PrototypePerson, ConstructorLessClass, NamelessClass } from '../../testResources/classes';
@@ -121,6 +123,13 @@ describe('surrial', () => {
         const actual = surrial.serialize(input);
         const output = surrial.deserialize<Buffer>(actual);
         expect(input.toString()).eq(output.toString());
+    });
+
+    it('should be able to serialize a png image as buffer', () => {
+        const input = fs.readFileSync(path.join(__dirname, '..', '..', 'testResources', 'image.png'));
+        const actual = surrial.serialize(input);
+        const output = surrial.deserialize<Buffer>(actual);
+        expect(input).deep.eq(output);
     });
 
     it('should be able to serialize a combination of everything', () => {

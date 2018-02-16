@@ -93,7 +93,7 @@ function serializeDate(value: Date) {
 }
 
 function serializeBuffer(value: Buffer) {
-    return `Buffer.from("${value.toString()}")`;
+    return `Buffer.from(${serialize(value.toString('binary'))}, "binary")`;
 }
 
 function serializeClassInstance(instance: any): string {
