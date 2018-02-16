@@ -67,6 +67,8 @@ const copy = deserialize(p, [Person]);
 
 ## Api
 
+TypeScript typings are included in the library.
+
 ```javascript
 /**
  * Serializes the thing to a javascript string. This is NOT necessarily a JSON string, but will be valid javascript.
@@ -106,9 +108,9 @@ I'm always in for a discussion.
 
 Circular references are not supported.
 
-### Deserializing is no security feature
+### Deserializing is no security feature (you will get hacked!)
 
-When you call the `deserialize` method, any string will be interpreted as javascript using the [`new Function(...)` constructor](https://developer.mozilla.org/nl/docs/Web/JavaScript/Reference/Global_Objects/Function). Keep in mind that any arbitrary code will be executed in the global scope of your current javascript engine! Please be sure to sanitize code coming from not trusted sources.
+When you call the `deserialize` method, any string will be interpreted as javascript using the [`new Function(...)` constructor](https://developer.mozilla.org/nl/docs/Web/JavaScript/Reference/Global_Objects/Function). Keep in mind that any arbitrary code will be executed in the global scope of your current javascript engine! Please **don't use this library** to deserialize strings coming from untrusted sources!
 
 ### Class instances
 
@@ -155,6 +157,10 @@ deserialize('new Person("Foo")', [Person]);
 // => OK: Person { name: 'Foo' }
 ```
 
-### 
+## Acknowledgements
 
+* This library is strongly influenced by [serialize-javascript](https://www.npmjs.com/package/serialize-javascript).
+This might be what you're looking for when you don't need the class instance serialization support.
+* A library which supports circular references: [circular-json](https://www.npmjs.com/package/circular-json)
+* Know the class that you're serializing to? [serialize.ts](https://www.npmjs.com/package/serializer.ts) might be for you. This one also looks good: [cerialize](https://www.npmjs.com/package/cerialize)
 
