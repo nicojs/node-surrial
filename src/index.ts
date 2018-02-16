@@ -3,27 +3,8 @@ import ClassConstructor from './ClassConstructor';
 import { EOL } from 'os';
 
 const UID = Math.floor(Math.random() * 0x10000000000).toString(16);
-const UNSAFE_CHARS_REGEXP = /[<>\/\u2028\u2029]/g;
 const PLACE_HOLDER_REGEXP = new RegExp('"@__' + UID + '-(\\d+)__@"', 'g');
 const IS_NATIVE_CODE_REGEXP = /\{\s*\[native code\]\s*\}/g;
-
-// Mapping of unsafe HTML and invalid JavaScript line terminator chars to their
-// Unicode char counterparts which are safe to use in JavaScript strings.
-interface EscapedChars {
-    [key: string]: string;
-}
-
-const ESCAPED_CHARS: EscapedChars = {
-    '<': '\\u003C',
-    '>': '\\u003E',
-    '/': '\\u002F',
-    '\u2028': '\\u2028',
-    '\u2029': '\\u2029'
-};
-
-function escapeUnsafeChars(unsafeChar: string) {
-    return ESCAPED_CHARS[unsafeChar];
-}
 
 /**
  * Deserializes a string into it's javascript equivalent. CAUTION! Evaluates the string in the current javascript engine
@@ -63,13 +44,9 @@ export function serialize(thing: any): string {
 function stringifyObject(thing: any): string {
     const escapedValues: any[] = [];
 
-    // Returns placeholders for functions and regexps (identified by index)
+    // Returns placeholders anything JSON doesn't support (identified by index)
     // which are later replaced by their string representation.
     function replacer<T>(this: T, key: keyof T, value: any): any {
-        if (!value) {
-            return value;
-        }
-
         // If the value is an object w/ a toJSON method, toJSON is called before
         // the replacer runs, so we use this[key] to get the non-toJSONed value.
         const origValue = this[key];
@@ -80,7 +57,7 @@ function stringifyObject(thing: any): string {
         }
     }
 
-    let str = JSON.stringify(thing, replacer as any, 2);
+    const str = JSON.stringify(thing, replacer as any, 2);
 
     // Protects against `JSON.stringify()` returning `undefined`, by serializing
     // to the literal string: "undefined".
@@ -88,17 +65,13 @@ function stringifyObject(thing: any): string {
         return String(str);
     }
 
-    // Replace unsafe HTML and invalid JavaScript line terminator chars with
-    // their safe Unicode char counterpart. This _must_ happen before the
-    // regexps and functions are serialized and added back to the string.
-    str = str.replace(UNSAFE_CHARS_REGEXP, escapeUnsafeChars);
-
     if (escapedValues.length === 0) {
         return str;
     } else {
         // Replaces all occurrences of placeholders in the
         // JSON string with their string representations. If the original value can
         // not be found, then `undefined` is used.
+        PLACE_HOLDER_REGEXP.lastIndex = 0;
         return str.replace(PLACE_HOLDER_REGEXP, (_, valueIndex) => serialize(escapedValues[valueIndex as any]));
     }
 }
@@ -125,15 +98,20 @@ function serializeBuffer(value: Buffer) {
 
 function serializeClassInstance(instance: any): string {
     const constructor: ClassConstructor = instance.constructor;
-    const params = getParamList(constructor);
-    const paramValues = params.map(param => serialize(instance[param]));
-    const newExpression = `new ${constructor.name}(${paramValues.join(', ')})`;
-    return newExpression;
+    if (constructor.name.length) {
+        const params = getParamList(constructor);
+        const paramValues = params.map(param => serialize(instance[param]));
+        const newExpression = `new ${constructor.name}(${paramValues.join(', ')})`;
+        return newExpression;
+    } else {
+        throw new Error(`Cannot serialize instances of nameless classes (class was defined as: ${constructor.toString()})`);
+    }
 }
 
 function serializeFunction(fn: Function) {
     const serializedFn = fn.toString();
 
+    IS_NATIVE_CODE_REGEXP.lastIndex = 0;
     if (IS_NATIVE_CODE_REGEXP.test(serializedFn)) {
         throw new TypeError(`Cannot serialize native function: ${fn.name}`);
     }

@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import * as surrial from '../../src/index';
-import { ESPerson, PrototypePerson } from '../../testResources/classes';
+import { ESPerson, PrototypePerson, ConstructorLessClass, NamelessClass } from '../../testResources/classes';
 
 describe('surrial', () => {
 
@@ -25,6 +25,18 @@ describe('surrial', () => {
         expect(output.name).eq('ESPerson');
     });
 
+    it('should serialize instances of constructor-less classes', () => {
+        const actual = surrial.serialize(new ConstructorLessClass());
+        const output = surrial.deserialize(actual, [ConstructorLessClass]);
+        expect(actual).eq('new ConstructorLessClass()');
+        expect(output).deep.eq({});
+    });
+
+    it('should not be able to serialize instances of nameless classes', () => {
+        const expectedMessage = `Cannot serialize instances of nameless classes (class was defined as: ${NamelessClass.toString()})`;
+        expect(() => surrial.serialize(new NamelessClass())).throws(expectedMessage);
+    });
+
     it('should serialize Date', () => {
         const date = new Date('1900-02-02T02:04:05.006Z');
         const actual = surrial.serialize(date);
@@ -35,6 +47,11 @@ describe('surrial', () => {
         const regex = /abc/;
         const actual = surrial.serialize(regex);
         expect(actual).eq('/abc/');
+    });
+
+    it('should throw a TypeError when serializing native built-ins', () => {
+        expect(Number.toString()).to.equal('function Number() { [native code] }');
+        expect(() => surrial.serialize(Number)).throws(TypeError);
     });
 
     it('should serialize class instances', () => {
@@ -79,6 +96,10 @@ describe('surrial', () => {
     it('should throw an error when serializing a native function', () => {
         expect(() => surrial.serialize(String))
             .throws('Cannot serialize native function: String');
+    });
+
+    it('should serialize `undefined`', () => {
+        expect(surrial.serialize(undefined)).eq('undefined');
     });
 
     it('should be able to serialize a Set', () => {

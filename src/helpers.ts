@@ -9,16 +9,25 @@ function isEcmaScriptClass(constructor: ClassConstructor) {
 }
 
 export function getParamList(constructor: ClassConstructor): string[] {
-    let parametersMatch: RegExpMatchArray | null = null;
+
+    const splitParams = (params: string) =>
+        params.split(',').map(param => param.trim());
+
+    const constructorString = constructor.toString();
     if (isEcmaScriptClass(constructor)) {
-        parametersMatch = constructor.toString().match(/constructor[^(]*\(([^)]*)\)/);
+        const parametersMatch = constructorString.match(/constructor[^(]*\(([^)]*)\)/);
+        if (parametersMatch) {
+            return splitParams(parametersMatch[1]);
+        } else {
+            // Constructor is optional in an es6 class
+            return [];
+        }
     } else {
-        parametersMatch = constructor.toString().match(/function[^(]*\(([^)]*)\)/);
-    }
-    if (!parametersMatch) {
-        throw new Error(`Constructor function "${constructor.name}" could not be serialized. Constructor was: ${constructor.toString()}`);
-    } else {
-        return parametersMatch[1].split(',')
-            .map(param => param.trim());
+        const parametersMatch = constructorString.match(/function[^(]*\(([^)]*)\)/);
+        if (parametersMatch) {
+            return splitParams(parametersMatch[1]);
+        } else {
+            throw new Error(`Constructor function "${constructor.name}" could not be serialized. Class was defined as: ${constructor.toString()}`);
+        }
     }
 }
