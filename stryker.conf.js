@@ -14,6 +14,11 @@ module.exports = function (config) {
     testFramework: "mocha",
     coverageAnalysis: "off",
     tsconfigFile: "tsconfig.json",
-    maxConcurrentTestRunners: 6
+    maxConcurrentTestRunners: 6,
+    thresholds: {
+      high: 95,
+      low: 90,
+      break: 90 
+    }
   });
 };
