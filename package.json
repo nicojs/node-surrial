@@ -19,6 +19,14 @@
     "release:minor": "npm version minor -m \"chore(release): %s\"",
     "release:major": "npm version major -m \"chore(release): %s\""
   },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/nicojs/node-surrial"
+  },
+  "bugs": {
+    "url": "https://github.com/nicojs/node-surrial/issues"
+  },
+  "homepage": "https://github.com/nicojs/node-surrial",
   "keywords": [
     "serialize",
     "deserialize",
