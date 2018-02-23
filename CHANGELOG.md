@@ -1,3 +1,13 @@
+<a name="0.1.3"></a>
+## [0.1.3](https://github.com/nicojs/node-surrial/compare/v0.1.2...v0.1.3) (2018-02-23)
+
+
+### Bug Fixes
+
+* **arrays:** add support for arrays inside objects. ([5b5ca10](https://github.com/nicojs/node-surrial/commit/5b5ca10))
+
+
+
 <a name="0.1.2"></a>
 ## [0.1.2](https://github.com/nicojs/node-surrial/compare/v0.1.1...v0.1.2) (2018-02-19)
 
