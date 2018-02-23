@@ -12,6 +12,15 @@ describe('surrial', () => {
         expect(actual).eq(JSON.stringify(obj, null, 2));
     });
 
+    it('should be able to serialize arrays inside of objects', () => {
+        const obj = {
+            kind: 0,
+            constructorArgs: ['foobar']
+        };
+        const actual = surrial.serialize(obj);
+        expect(actual).eq(JSON.stringify(obj, null, 2));
+    });
+
     it('should serialize functions', () => {
         function foobar(a: string) {
             return 2 + a;

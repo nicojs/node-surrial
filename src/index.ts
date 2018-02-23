@@ -34,11 +34,17 @@ export function serialize(thing: any): string {
         return serializeSet(thing);
     } else if (thing instanceof Map) {
         return serializeMap(thing);
+    } else if (Array.isArray(thing)) {
+        return serializeArray(thing);
     } else if (isClassInstance(thing)) {
         return serializeClassInstance(thing);
     } else {
         return stringifyObject(thing);
     }
+}
+
+function serializeArray(thing: any[]) {
+    return stringifyObject(thing);
 }
 
 function stringifyObject(thing: any): string {
@@ -50,7 +56,7 @@ function stringifyObject(thing: any): string {
         // If the value is an object w/ a toJSON method, toJSON is called before
         // the replacer runs, so we use this[key] to get the non-toJSONed value.
         const origValue = this[key];
-        if (isClassInstance(origValue) || typeof origValue === 'function') {
+        if ((isClassInstance(origValue) && !Array.isArray(origValue)) || typeof origValue === 'function') {
             return `@__${UID}-${escapedValues.push(origValue) - 1}__@`;
         } else {
             return value;
