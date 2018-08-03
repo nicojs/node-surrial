@@ -7,7 +7,6 @@
     "module": "commonjs",
     "strict": true,
     "esModuleInterop": true,
-    "experimentalDecorators": true,
     "sourceMap": true,
     "declaration": true,
     "noUnusedLocals": true,
@@ -15,7 +14,6 @@
     "noFallthroughCasesInSwitch": true,
     "noImplicitThis": true,
     "noImplicitAny": true,
-    "noImplicitReturns": true,
-    "alwaysStrict": true
+    "noImplicitReturns": true
   }
 }
