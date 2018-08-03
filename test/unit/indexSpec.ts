@@ -43,6 +43,11 @@ describe('surrial', () => {
         expect(output).deep.eq({});
     });
 
+    it('should not be able to serialize instances of nameless classes', () => {
+        const expectedMessage = `Cannot serialize instances of nameless classes (class was defined as: ${NamelessClass.toString()})`;
+        expect(() => surrial.serialize(new NamelessClass(), [NamelessClass])).throws(expectedMessage);
+    });
+
     it('should serialize Date', () => {
         const date = new Date('1900-02-02T02:04:05.006Z');
         const actual = surrial.serialize(date);

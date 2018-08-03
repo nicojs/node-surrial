@@ -5,7 +5,7 @@ import { EOL } from 'os';
 const UID = Math.floor(Math.random() * 0x10000000000).toString(16);
 const PLACE_HOLDER_REGEXP = new RegExp('"@__' + UID + '-(\\d+)__@"', 'g');
 const IS_NATIVE_CODE_REGEXP = /\{\s*\[native code\]\s*\}/g;
-const BUILD_IN_CLASSES: ReadonlyArray<ClassConstructor> = Object.freeze([Map, Array, Buffer, Set, Date, RegExp]);
+const BUILD_IN_SUPPORTED_CLASSES: ReadonlyArray<ClassConstructor> = Object.freeze([Map, Array, Buffer, Set, Date, RegExp]);
 
 /**
  * Deserializes a string into it's javascript equivalent. CAUTION! Evaluates the string in the current javascript engine
@@ -58,7 +58,7 @@ function stringifyObject(thing: any, knownClasses: ReadonlyArray<ClassConstructo
         // If the value is an object w/ a toJSON method, toJSON is called before
         // the replacer runs, so we use this[key] to get the non-JSON'd value.
         const origValue = this[key];
-        if ((origValue !== thing && (isInstanceOf(origValue, BUILD_IN_CLASSES) || isInstanceOf(origValue, knownClasses)))) {
+        if ((origValue !== thing && (isInstanceOf(origValue, BUILD_IN_SUPPORTED_CLASSES) || isInstanceOf(origValue, knownClasses)))) {
             return `@__${UID}-${escapedValues.push(origValue) - 1}__@`;
         } else {
             return value;
@@ -106,10 +106,14 @@ function serializeBuffer(value: Buffer) {
 
 function serializeClassInstance(instance: any, knownClasses: ReadonlyArray<ClassConstructor>): string {
     const constructor: ClassConstructor = instance.constructor;
-    const params = getParamList(constructor);
-    const paramValues = params.map(param => serialize(instance[param], knownClasses));
-    const newExpression = `new ${constructor.name}(${paramValues.join(', ')})`;
-    return newExpression;
+    if (constructor.name.length) {
+        const params = getParamList(constructor);
+        const paramValues = params.map(param => serialize(instance[param], knownClasses));
+        const newExpression = `new ${constructor.name}(${paramValues.join(', ')})`;
+        return newExpression;
+    } else {
+        throw new Error(`Cannot serialize instances of nameless classes (class was defined as: ${constructor.toString()})`);
+    }
 }
 
 function serializeFunction(fn: Function) {
