@@ -17,7 +17,11 @@
                 "--colors",
                 "${workspaceFolder}/test/**/*.js"
             ],
-            "internalConsoleOptions": "openOnSessionStart"
+            "internalConsoleOptions": "openOnSessionStart",
+            "outFiles": [
+                "${workspaceRoot}/src/**/*.js",
+                "${workspaceRoot}/test/**/*.js"
+            ]
         }
     ]
 }
