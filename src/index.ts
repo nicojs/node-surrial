@@ -1,10 +1,11 @@
-import { isClassInstance, getParamList } from './helpers';
+import { isInstanceOf, getParamList } from './helpers';
 import ClassConstructor from './ClassConstructor';
 import { EOL } from 'os';
 
 const UID = Math.floor(Math.random() * 0x10000000000).toString(16);
 const PLACE_HOLDER_REGEXP = new RegExp('"@__' + UID + '-(\\d+)__@"', 'g');
 const IS_NATIVE_CODE_REGEXP = /\{\s*\[native code\]\s*\}/g;
+const BUILD_IN_SUPPORTED_CLASSES: ReadonlyArray<ClassConstructor> = Object.freeze([Map, Array, Buffer, Set, Date, RegExp]);
 
 /**
  * Deserializes a string into it's javascript equivalent. CAUTION! Evaluates the string in the current javascript engine
@@ -20,8 +21,9 @@ export function deserialize<T = any>(serializedThing: string, knownClasses: Clas
 /**
  * Serializes the thing to a javascript string. This is NOT necessarily a JSON string, but will be valid javascript.
  * @param thing The thing to be serialized
+ * @param knownClasses the classes of which instances are serialized as constructor calls (for example "new Person('Henry')").
  */
-export function serialize(thing: any): string {
+export function serialize(thing: any, knownClasses: ReadonlyArray<ClassConstructor> = []): string {
     if (thing instanceof Date) {
         return serializeDate(thing);
     } else if (thing instanceof RegExp) {
@@ -31,39 +33,39 @@ export function serialize(thing: any): string {
     } else if (thing instanceof Buffer) {
         return serializeBuffer(thing);
     } else if (thing instanceof Set) {
-        return serializeSet(thing);
+        return serializeSet(thing, knownClasses);
     } else if (thing instanceof Map) {
-        return serializeMap(thing);
+        return serializeMap(thing, knownClasses);
     } else if (Array.isArray(thing)) {
-        return serializeArray(thing);
-    } else if (isClassInstance(thing)) {
-        return serializeClassInstance(thing);
+        return serializeArray(thing, knownClasses);
+    } else if (isInstanceOf(thing, knownClasses)) {
+        return serializeClassInstance(thing, knownClasses);
     } else {
-        return stringifyObject(thing);
+        return stringifyObject(thing, knownClasses);
     }
 }
 
-function serializeArray(thing: any[]) {
-    return stringifyObject(thing);
+function serializeArray(thing: any[], knownClasses: ReadonlyArray<ClassConstructor>) {
+    return stringifyObject(thing, knownClasses);
 }
 
-function stringifyObject(thing: any): string {
+function stringifyObject(thing: any, knownClasses: ReadonlyArray<ClassConstructor>): string {
     const escapedValues: any[] = [];
 
     // Returns placeholders anything JSON doesn't support (identified by index)
     // which are later replaced by their string representation.
     function replacer<T>(this: T, key: keyof T, value: any): any {
         // If the value is an object w/ a toJSON method, toJSON is called before
-        // the replacer runs, so we use this[key] to get the non-toJSONed value.
+        // the replacer runs, so we use this[key] to get the non-JSON'd value.
         const origValue = this[key];
-        if ((isClassInstance(origValue) && !Array.isArray(origValue)) || typeof origValue === 'function') {
+        if ((origValue !== thing && (isInstanceOf(origValue, BUILD_IN_SUPPORTED_CLASSES) || isInstanceOf(origValue, knownClasses)))) {
             return `@__${UID}-${escapedValues.push(origValue) - 1}__@`;
         } else {
             return value;
         }
     }
 
-    const str = JSON.stringify(thing, replacer as any, 2);
+    const str = JSON.stringify(thing, replacer as any);
 
     // Protects against `JSON.stringify()` returning `undefined`, by serializing
     // to the literal string: "undefined".
@@ -78,19 +80,19 @@ function stringifyObject(thing: any): string {
         // JSON string with their string representations. If the original value can
         // not be found, then `undefined` is used.
         PLACE_HOLDER_REGEXP.lastIndex = 0;
-        return str.replace(PLACE_HOLDER_REGEXP, (_, valueIndex) => serialize(escapedValues[valueIndex as any]));
+        return str.replace(PLACE_HOLDER_REGEXP, (_, valueIndex) => serialize(escapedValues[valueIndex as any], knownClasses));
     }
 }
 
-function serializeSet(value: Set<any>) {
+function serializeSet(value: Set<any>, knownClasses: ReadonlyArray<ClassConstructor>) {
     const valuesArray: string[] = [];
-    value.forEach(v => valuesArray.push(serialize(v)));
+    value.forEach(v => valuesArray.push(serialize(v, knownClasses)));
     return `new Set([${valuesArray.join(', ')}])`;
 }
 
-function serializeMap(map: Map<any, any>): string {
+function serializeMap(map: Map<any, any>, knownClasses: ReadonlyArray<ClassConstructor>): string {
     const valuesArray: string[] = [];
-    map.forEach((value, key) => valuesArray.push(`[${serialize(key)}, ${serialize(value)}]`));
+    map.forEach((value, key) => valuesArray.push(`[${serialize(key, knownClasses)}, ${serialize(value, knownClasses)}]`));
     return `new Map([${valuesArray.join(', ')}])`;
 }
 
@@ -102,11 +104,11 @@ function serializeBuffer(value: Buffer) {
     return `Buffer.from(${serialize(value.toString('binary'))}, "binary")`;
 }
 
-function serializeClassInstance(instance: any): string {
+function serializeClassInstance(instance: any, knownClasses: ReadonlyArray<ClassConstructor>): string {
     const constructor: ClassConstructor = instance.constructor;
     if (constructor.name.length) {
         const params = getParamList(constructor);
-        const paramValues = params.map(param => serialize(instance[param]));
+        const paramValues = params.map(param => serialize(instance[param], knownClasses));
         const newExpression = `new ${constructor.name}(${paramValues.join(', ')})`;
         return newExpression;
     } else {

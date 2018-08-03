@@ -54,14 +54,15 @@ const output = deserialize(stringified)
 */
 ```
 
-Also supports serializing instances of classes.
+Also supports serializing instances of classes for known classes.
 
 ```javascript
 const p = new Person('Foo', new Person('Bar', null));
-const personString = serialize(p);
+const knownClasses = [Person];
+const personString = serialize(p, knownClasses);
 // => 'new Person("Foo", new Person("Bar", null))'
 
-const copy = deserialize(p, [Person]);
+const copy = deserialize(p, knownClasses);
 // => Person { name: 'Foo', parent: Person { name: 'Bar', parent: null } }
 ```
 
@@ -73,8 +74,9 @@ TypeScript typings are included in the library.
 /**
  * Serializes the thing to a javascript string. This is NOT necessarily a JSON string, but will be valid javascript.
  * @param thing The thing to be serialized
+ * @param knownClasses the classes of which instances are serialized as constructor calls (for example "new Person('Henry')").
  */
-function serialize(thing: any): string {
+function serialize(thing: any, knownClasses: ClassConstructor[] = []): string {
 
 
 /**
@@ -93,10 +95,11 @@ function deserialize(serializedThing: string, knownClasses: ClassConstructor[] =
 * Serializes plain objects as JSON
 * Support for build in types: `Date`, `RegExp`, `Map`, `Set` and `Buffer`
 * Support for functions and classes using their `toString()` 
-* Support for instances of classes (see limitations).
+* Support for instances of classes using `new MyClass()` syntax (see [limitations](#class-instances)).
+* Support for deeply nested build in types/class instances
 * Has a light footprint (&lt; 200 lines of code).
 * Written in typescript (type definition included).
-* Deserialize using a `deserialize` convenience method. This uses the `new Function(/*...*/)` (comparable to `eval`) (see limitations).
+* Deserialize using a `deserialize` convenience method. This uses the `new Function(/*...*/)` (comparable to `eval`) (see [limitations](#deserializing-is-no-security-feature-you-will-get-hacked)).
 
 ## Limitations
 
@@ -125,7 +128,7 @@ class Person {
 
 const p = new Person('foo');
 p.age = 10; // => ignored
-serialize(p);
+serialize(p, [Person]);
 // => 'new Person("foo")'
 ```
 
@@ -146,6 +149,18 @@ serialize(p);
 // => 'new Person(undefined, 42)'
 ```
 
+When serializing a class instance, only classes you specify as `knownClasses` are actually serialized using `new MyClass()`, 
+by default it would just have a JSON format.
+
+```javascript
+class Person { constructor(name) { this.name = name; }}
+serialize(new Person('Foo'));
+// => { "name": "foo" }
+
+serialize(new Person('Foo'), [Person]);
+// => new Person("foo")
+```
+
 When deserializing a class instance, you are responsible for providing a class definition (or a class with the same name).
 
 ```javascript
@@ -156,6 +171,7 @@ deserialize('new Person("Foo")');
 deserialize('new Person("Foo")', [Person]);
 // => OK: Person { name: 'Foo' }
 ```
+
 
 ## Acknowledgements
 

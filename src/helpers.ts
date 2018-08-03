@@ -1,7 +1,7 @@
 import ClassConstructor from './ClassConstructor';
 
-export function isClassInstance(thing: any) {
-    return typeof thing === 'object' && thing && thing.constructor && thing.constructor !== Object;
+export function isInstanceOf(thing: any, whitelist: ReadonlyArray<ClassConstructor>) {
+    return whitelist.some(ctor => thing instanceof ctor);
 }
 
 function isEcmaScriptClass(constructor: ClassConstructor) {

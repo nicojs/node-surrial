@@ -9,7 +9,7 @@ describe('surrial', () => {
     it('should serialize normal objects', () => {
         const obj = { a: 42, b: true, c: 'foobar', d: null };
         const actual = surrial.serialize(obj);
-        expect(actual).eq(JSON.stringify(obj, null, 2));
+        expect(actual).eq(JSON.stringify(obj));
     });
 
     it('should be able to serialize arrays inside of objects', () => {
@@ -18,7 +18,7 @@ describe('surrial', () => {
             constructorArgs: ['foobar']
         };
         const actual = surrial.serialize(obj);
-        expect(actual).eq(JSON.stringify(obj, null, 2));
+        expect(actual).eq(JSON.stringify(obj));
     });
 
     it('should serialize functions', () => {
@@ -37,7 +37,7 @@ describe('surrial', () => {
     });
 
     it('should serialize instances of constructor-less classes', () => {
-        const actual = surrial.serialize(new ConstructorLessClass());
+        const actual = surrial.serialize(new ConstructorLessClass(), [ConstructorLessClass]);
         const output = surrial.deserialize(actual, [ConstructorLessClass]);
         expect(actual).eq('new ConstructorLessClass()');
         expect(output).deep.eq({});
@@ -45,7 +45,7 @@ describe('surrial', () => {
 
     it('should not be able to serialize instances of nameless classes', () => {
         const expectedMessage = `Cannot serialize instances of nameless classes (class was defined as: ${NamelessClass.toString()})`;
-        expect(() => surrial.serialize(new NamelessClass())).throws(expectedMessage);
+        expect(() => surrial.serialize(new NamelessClass(), [NamelessClass])).throws(expectedMessage);
     });
 
     it('should serialize Date', () => {
@@ -70,23 +70,39 @@ describe('surrial', () => {
             constructor(public name: string) { }
         }
         const input = new Person('Foobar');
-        const actual = surrial.serialize(input);
+        const actual = surrial.serialize(input, [Person]);
         expect(actual).eq('new Person("Foobar")');
         const output = surrial.deserialize(`(${actual})`, [Person]);
         expect(output).deep.eq(input);
+    });
+
+    it('should serialize a class instance as JSON if it is not a known class', () => {
+        const input = new (class { constructor(readonly name: string) { } })('Foobar');
+        const actual = surrial.serialize(input);
+        expect(actual).eq(JSON.stringify(input));
+    });
+
+    it('should be able to serialize a class instance that is property of another class instance that is not a known class', () => {
+        class Foo {
+            constructor(readonly n: number) { }
+        }
+        const input = new (class { constructor(readonly foo: Foo) { } })(new Foo(42));
+        const actual = surrial.serialize(input, [Foo]);
+        expect(actual).eq('{"foo":new Foo(42)}');
     });
 
     it('should serialize class instances recursive', () => {
         class Person {
             constructor(public name: string, public parent: Person | null) { }
         }
-        const actual = surrial.serialize(new Person('foo', new Person('bar', new Person('baz', null))));
+        const input = new Person('foo', new Person('bar', new Person('baz', null)));
+        const actual = surrial.serialize(input, [Person]);
         expect(actual).eq('new Person("foo", new Person("bar", new Person("baz", null)))');
     });
 
     it('should be able to deserialize an instance of an ES class', () => {
         const input = new ESPerson('Foo', 42);
-        const actual = surrial.serialize(input);
+        const actual = surrial.serialize(input, [ESPerson]);
         const expected = `new ESPerson("Foo", 42)`;
         const output = surrial.deserialize(actual, [ESPerson]);
         expect(actual).eq(expected);
@@ -96,7 +112,7 @@ describe('surrial', () => {
 
     it('should be able to deserialize an instance of a prototypical class', () => {
         const input = new PrototypePerson('Foo', 42);
-        const actual = surrial.serialize(input);
+        const actual = surrial.serialize(input, [PrototypePerson]);
         const expected = `new PrototypePerson("Foo", 42)`;
         const output = surrial.deserialize(actual, [PrototypePerson]);
         expect(actual).eq(expected);
@@ -148,9 +164,10 @@ describe('surrial', () => {
             c: /foo/,
             d: new Set([1, 2, 3]),
             e: new Map([[1, 'one'], [2, 'two']]),
-            g: new ESPerson('Foo', 25)
+            g: new ESPerson('Foo', 25),
+            h: Buffer.from('bar')
         };
-        const actual = surrial.serialize(input);
+        const actual = surrial.serialize(input, [ESPerson]);
         const output = surrial.deserialize(actual, [ESPerson]);
         expect(output).deep.eq(input);
     });
