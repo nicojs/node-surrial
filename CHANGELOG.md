@@ -1,3 +1,30 @@
+<a name="0.2.0"></a>
+# [0.2.0](https://github.com/nicojs/node-surrial/compare/v0.1.3...v0.2.0) (2019-01-23)
+
+
+### Bug Fixes
+
+* remove unused typescript options ([f689593](https://github.com/nicojs/node-surrial/commit/f689593))
+
+
+### Features
+
+* **Serialize:** Only serialize known class instances  ([#3](https://github.com/nicojs/node-surrial/issues/3)) ([245008d](https://github.com/nicojs/node-surrial/commit/245008d))
+
+
+### BREAKING CHANGES
+
+* **Serialize:** Class instances will now only be serialized in its
+constructor form if it is a "knownClass".
+
+```js
+serialize(new Foo('bar'));
+// Should now be:
+serialize(new Foo('bar'), [Foo]);
+```
+
+
+
 <a name="0.1.3"></a>
 ## [0.1.3](https://github.com/nicojs/node-surrial/compare/v0.1.2...v0.1.3) (2018-02-23)
 
