@@ -1,8 +1,5 @@
 module.exports = function (config) {
   config.set({
-    files: [
-      { pattern: 'testResources/**/*', included: false, transpiled: false, mutated: false }
-    ],
     mutate: [
       "src/**/*.ts",
       "!src/**/*.d.ts"
@@ -15,10 +12,20 @@ module.exports = function (config) {
     coverageAnalysis: "off",
     tsconfigFile: "tsconfig.json",
     maxConcurrentTestRunners: 6,
+    mochaOptions: {
+      spec: ['test/**/*.js'],
+      ui: 'bdd'
+    },
     thresholds: {
       high: 95,
       low: 90,
-      break: 90 
+      break: 90
+    },
+    dashboard: {
+      project: 'github.com/nicojs/angular-cli-with-alternative-filesystem',
+      baseUrl: 'https://dashboard.stryker-mutator.io/api/reports',
+      version: 'master',
+      fullReport: true
     }
   });
 };
