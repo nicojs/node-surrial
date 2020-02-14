@@ -18,7 +18,7 @@ yarn add surrial
 ## Usage
 
 ```javascript
-const { serialize, deserialize } = require('surrial');
+const { serialize, deserialize, surrial } = require('surrial');
 
 class Person {
     constructor(name, parent){
@@ -66,17 +66,32 @@ const copy = deserialize(p, knownClasses);
 // => Person { name: 'Foo', parent: Person { name: 'Bar', parent: null } }
 ```
 
+An example of the `surrial` tag for template literals:
+
+```js
+const decade = [new Date(2010, 1, 1), new Date(2020, 1, 1)];
+surrial`new Set(${decade})`;
+// => 'new Set([new Date("2010-01-31T23:00:00.000Z"),new Date("2020-01-31T23:00:00.000Z")])'
+```
+
 ## Api
 
 TypeScript typings are included in the library.
 
 ```javascript
 /**
+ * A surrial template tag, useful for building templates strings while enforcing the values to be serialized using surrial.
+ * @param templateLiterals The template literals
+ * @param values The values to be serialized using surrial
+ */
+export function surrial(templateLiterals: TemplateStringsArray, ...values: unknown[]) {
+
+/**
  * Serializes the thing to a javascript string. This is NOT necessarily a JSON string, but will be valid javascript.
  * @param thing The thing to be serialized
  * @param knownClasses the classes of which instances are serialized as constructor calls (for example "new Person('Henry')").
  */
-function serialize(thing: any, knownClasses: ClassConstructor[] = []): string {
+export function serialize(thing: any, knownClasses: ClassConstructor[] = []): string {
 
 
 /**
@@ -85,7 +100,7 @@ function serialize(thing: any, knownClasses: ClassConstructor[] = []): string {
  * @param serializedThing The string to deserialize
  * @param knownClasses A list of known classes used to provide as constructor functions
  */
-function deserialize(serializedThing: string, knownClasses: ClassConstructor[] = []): any;
+export function deserialize(serializedThing: string, knownClasses: ClassConstructor[] = []): any;
 ```
 
 
@@ -100,6 +115,7 @@ function deserialize(serializedThing: string, knownClasses: ClassConstructor[] =
 * Has a light footprint (&lt; 200 lines of code).
 * Written in typescript (type definition included).
 * Deserialize using a `deserialize` convenience method. This uses the `new Function(/*...*/)` (comparable to `eval`) (see [limitations](#deserializing-is-no-security-feature-you-will-get-hacked)).
+* Serialize values in a template with a handy `surrial` tagged template literal.
 
 ## Limitations
 

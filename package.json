@@ -11,6 +11,7 @@
     "lint:json": "prettier --check .eslintrc *.json",
     "lint:ts": "eslint --ext .js,.ts --ignore-path .gitignore .",
     "build": "tsc",
+    "start": "tsc -w",
     "test": "nyc --check-coverage --reporter=html --report-dir=reports/coverage --lines 80 --functions 80 --branches 75 mocha --require source-map-support/register \"test/**/*.js\"",
     "stryker": "stryker run",
     "preversion": "npm run all",
