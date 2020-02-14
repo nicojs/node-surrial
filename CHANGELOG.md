@@ -1,3 +1,20 @@
+# [2.0.0](https://github.com/nicojs/node-surrial/compare/v1.0.0...v2.0.0) (2020-02-14)
+
+
+### Features
+
+* **template:** add surrial tag for template literals ([bf27e77](https://github.com/nicojs/node-surrial/commit/bf27e7772af833b799e814387733fcad1c682dc9))
+
+
+*  feat(custom): allow custom serialization logic (#7) ([bd78dc4](https://github.com/nicojs/node-surrial/commit/bd78dc4557191bf105534992dd9445c6973edf0b)), closes [#7](https://github.com/nicojs/node-surrial/issues/7) [#5](https://github.com/nicojs/node-surrial/issues/5)
+
+
+### BREAKING CHANGES
+
+* If you have `surrialize()` methods on your objects (for some reason?) that function will now be used when serializing the object.
+
+
+
 # [1.0.0](https://github.com/nicojs/node-surrial/compare/v0.2.0...v1.0.0) (2019-02-12)
 
 
