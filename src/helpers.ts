@@ -1,7 +1,14 @@
-import ClassConstructor from './ClassConstructor';
+import ClassConstructor from './class-constructor';
+import { Surrializable } from './surrializable';
 
-export function isInstanceOf(thing: any, whitelist: ReadonlyArray<ClassConstructor>) {
+export function isInstanceOf(thing: unknown, whitelist: ReadonlyArray<ClassConstructor>) {
   return whitelist.some(ctor => thing instanceof ctor);
+}
+
+const SURRIALIZABLE_FN_NAME: keyof Surrializable = 'surrialize';
+
+export function isSurrializable(thing: object): thing is Surrializable {
+  return thing && typeof (thing as any)[SURRIALIZABLE_FN_NAME] === 'function';
 }
 
 function isEcmaScriptClass(constructor: ClassConstructor) {
