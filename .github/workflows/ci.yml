@@ -25,3 +25,5 @@ jobs:
       run: npm install
     - name: Build & lint & test
       run: npm run all
+      env:
+        STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
