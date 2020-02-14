@@ -1,17 +1,14 @@
-module.exports = function (config) {
+module.exports = function(config) {
   config.set({
-    mutate: [
-      "src/**/*.ts",
-      "!src/**/*.d.ts"
-    ],
-    testRunner: "mocha",
-    mutator: "typescript",
-    transpilers: ["typescript"],
-    reporter: ["html", "clear-text", "progress", "dashboard"],
-    testFramework: "mocha",
-    coverageAnalysis: "off",
-    tsconfigFile: "tsconfig.json",
-    maxConcurrentTestRunners: 6,
+    mutate: ['src/**/*.ts', '!src/**/*.d.ts'],
+    testRunner: 'mocha',
+    mutator: 'typescript',
+    transpilers: ['typescript'],
+    reporters: ['dashboard'],
+    testFramework: 'mocha',
+    coverageAnalysis: 'perTest',
+    tsconfigFile: 'tsconfig.json',
+    maxConcurrentTestRunners: 2,
     mochaOptions: {
       spec: ['test/**/*.js'],
       ui: 'bdd'
@@ -22,10 +19,7 @@ module.exports = function (config) {
       break: 90
     },
     dashboard: {
-      project: 'github.com/nicojs/angular-cli-with-alternative-filesystem',
-      baseUrl: 'https://dashboard.stryker-mutator.io/api/reports',
-      version: 'master',
-      fullReport: true
+      reportType: 'full'
     }
   });
 };
