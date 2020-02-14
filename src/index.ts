@@ -8,6 +8,21 @@ const IS_NATIVE_CODE_REGEXP = /\{\s*\[native code\]\s*\}/g;
 const BUILD_IN_SUPPORTED_CLASSES: ReadonlyArray<ClassConstructor> = Object.freeze([Map, Array, Buffer, Set, Date, RegExp]);
 
 /**
+ * A surrial template tag, useful for building templates strings while enforcing the values to be serialized using surrial.
+ * @param templateLiterals The template literals
+ * @param values The values to be serialized using surrial
+ */
+export function surrial(templateLiterals: TemplateStringsArray, ...values: unknown[]) {
+  const stringBuilder: string[] = [];
+  for (let i = 0; i < values.length; i++) {
+    stringBuilder.push(templateLiterals[i]);
+    stringBuilder.push(serialize(values[i]));
+  }
+  stringBuilder.push(templateLiterals[templateLiterals.length - 1]);
+  return stringBuilder.join('');
+}
+
+/**
  * Deserializes a string into it's javascript equivalent. CAUTION! Evaluates the string in the current javascript engine
  * (`eval` or one of its friends). Be sure the `serializedThing` comes from a trusted source!
  * @param serializedThing The string to deserialize
