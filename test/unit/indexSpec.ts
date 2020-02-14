@@ -3,6 +3,7 @@ import * as path from 'path';
 import { expect } from 'chai';
 import { deserialize, serialize, surrial } from '../../src/index';
 import { ESPerson, PrototypePerson, ConstructorLessClass, NamelessClass } from '../../testResources/classes';
+import { Surrializable } from '../../src/surrializable';
 
 describe('surrial', () => {
   describe('serialize and deserialize', () => {
@@ -74,6 +75,38 @@ describe('surrial', () => {
       expect(actual).eq('new Person("Foobar")');
       const output = deserialize(`(${actual})`, [Person]);
       expect(output).deep.eq(input);
+    });
+
+    it('should allow custom implementation using the `surrialize` function', () => {
+      class Person implements Surrializable {
+        public age: number;
+        constructor(ageInMonths: number) {
+          this.age = Math.floor(ageInMonths / 12);
+        }
+        surrialize() {
+          return surrial`new Person(${this.age * 12})`;
+        }
+      }
+
+      const input = new Person(25);
+      const actual = serialize(input, [Person]);
+      const output = deserialize(actual, [Person]);
+      expect(output).instanceOf(Person);
+      expect(output).deep.eq(input);
+    });
+
+    it('should not break for `surrialize` properties that are not functions', () => {
+      class Person {
+        public age: number;
+        constructor(ageInMonths: number) {
+          this.age = Math.floor(ageInMonths / 12);
+        }
+        surrialize = 32;
+      }
+
+      const input = new Person(25);
+      const actual = serialize(input);
+      expect(actual).eq('{"surrialize":32,"age":2}');
     });
 
     it('should serialize a class instance as JSON if it is not a known class', () => {
@@ -187,9 +220,6 @@ describe('surrial', () => {
       const actual = surrial`new File(${'fileName'}, ${Buffer.from('test')})`;
       const expected = 'new File("fileName", Buffer.from("test", "binary"))';
       expect(actual).eq(expected);
-      const decade = [new Date(2010, 1, 1), new Date(2020, 1, 1)];
-      const a = surrial`new Set(${decade})`;
-      console.log(a);
     });
   });
 
