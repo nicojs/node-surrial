@@ -1,3 +1,7 @@
+## [2.0.1](https://github.com/nicojs/node-surrial/compare/v2.0.0...v2.0.1) (2020-02-14)
+
+
+
 # [2.0.0](https://github.com/nicojs/node-surrial/compare/v1.0.0...v2.0.0) (2020-02-14)
 
 
