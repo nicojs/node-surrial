@@ -65,13 +65,33 @@ const personString = serialize(p, knownClasses);
 const copy = deserialize(p, knownClasses);
 // => Person { name: 'Foo', parent: Person { name: 'Bar', parent: null } }
 ```
-
 An example of the `surrial` tag for template literals:
 
 ```js
 const decade = [new Date(2010, 1, 1), new Date(2020, 1, 1)];
 surrial`new Set(${decade})`;
 // => 'new Set([new Date("2010-01-31T23:00:00.000Z"),new Date("2020-01-31T23:00:00.000Z")])'
+```
+
+You can customize the output string using the `surrialize()` method (comparable to the [`toJSON`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify#toJSON_behavior) method for `JSON.stringify`). 
+
+```ts
+// A typescript example
+class Person implements Surrializable {
+    public age: number;
+    constructor(ageInMonths: number) {
+        this.age = Math.floor(ageInMonths / 12);
+    }
+    surrialize() {
+        return surrial`new Person(${this.age * 12})`;
+    }
+}
+
+const input = new Person(25);
+const actual = serialize(input, [Person]);
+const output = deserialize(actual, [Person]);
+expect(output).instanceOf(Person);
+expect(output).deep.eq(input);
 ```
 
 ## Api
@@ -116,6 +136,7 @@ export function deserialize(serializedThing: string, knownClasses: ClassConstruc
 * Written in typescript (type definition included).
 * Deserialize using a `deserialize` convenience method. This uses the `new Function(/*...*/)` (comparable to `eval`) (see [limitations](#deserializing-is-no-security-feature-you-will-get-hacked)).
 * Serialize values in a template with a handy `surrial` tagged template literal.
+* Allow a custom serialize function using `surrialize`.
 
 ## Limitations
 

@@ -1,6 +1,7 @@
-import { isInstanceOf, getParamList } from './helpers';
-import ClassConstructor from './ClassConstructor';
+import { isInstanceOf, getParamList, isSurrializable } from './helpers';
+import ClassConstructor from './class-constructor';
 import { EOL } from 'os';
+export * from './surrializable';
 
 const UID = Math.floor(Math.random() * 0x10000000000).toString(16);
 const PLACE_HOLDER_REGEXP = new RegExp('"@__' + UID + '-(\\d+)__@"', 'g');
@@ -53,6 +54,8 @@ export function serialize(thing: any, knownClasses: ReadonlyArray<ClassConstruct
     return serializeMap(thing, knownClasses);
   } else if (Array.isArray(thing)) {
     return serializeArray(thing, knownClasses);
+  } else if (isSurrializable(thing)) {
+    return thing.surrialize();
   } else if (isInstanceOf(thing, knownClasses)) {
     return serializeClassInstance(thing, knownClasses);
   } else {
