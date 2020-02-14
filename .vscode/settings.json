@@ -1,19 +1,42 @@
 {
-    "files.exclude": {
-        "**/.git": true,
-        "**/.svn": true,
-        "**/.hg": true,
-        "**/CVS": true,
-        "**/.DS_Store": true,
-        "test/**/*.js": {
-            "when": "$(basename).ts"
-        },
-        "src/**/*.js": {
-            "when": "$(basename).ts"
-        },
-        "test/**/*.map": true,
-        "src/**/*.map": true,
-        "test/**/*.d.ts": true,
-        "src/**/*.d.ts": true
-    }
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/.DS_Store": true,
+    "test/**/*.js": {
+      "when": "$(basename).ts"
+    },
+    "src/**/*.js": {
+      "when": "$(basename).ts"
+    },
+    "test/**/*.map": true,
+    "src/**/*.map": true,
+    "test/**/*.d.ts": true,
+    "src/**/*.d.ts": true
+  },
+  "cSpell.words": [
+    "Surrializable",
+    "surrialize"
+  ],
+  "grunt.autoDetect": "off",
+  "gulp.autoDetect": "off",
+  "jake.autoDetect": "off",
+  "task.autoDetect": "off",
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
+  "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+  "eslint.validate": ["javascript", "javascriptreact", "html", "typescript"],
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
 }
