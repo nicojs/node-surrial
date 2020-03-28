@@ -76,7 +76,10 @@ function stringifyObject(thing: any, knownClasses: ReadonlyArray<ClassConstructo
     // If the value is an object w/ a toJSON method, toJSON is called before
     // the replacer runs, so we use this[key] to get the non-JSON'd value.
     const origValue = this[key];
-    if (origValue !== thing && (isInstanceOf(origValue, BUILD_IN_SUPPORTED_CLASSES) || isInstanceOf(origValue, knownClasses))) {
+    if (
+      origValue !== thing &&
+      (isInstanceOf(origValue, BUILD_IN_SUPPORTED_CLASSES) || isInstanceOf(origValue, knownClasses) || isSurrializable(origValue))
+    ) {
       return `@__${UID}-${escapedValues.push(origValue) - 1}__@`;
     } else {
       return value;
