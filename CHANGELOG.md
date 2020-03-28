@@ -1,3 +1,12 @@
+## [2.0.2](https://github.com/nicojs/node-surrial/compare/v2.0.1...v2.0.2) (2020-03-28)
+
+
+### Bug Fixes
+
+* **surrializable:** support surrializable in array or objects ([#10](https://github.com/nicojs/node-surrial/issues/10)) ([f1c9bda](https://github.com/nicojs/node-surrial/commit/f1c9bda559cf55e428c474e870bee97c6b582ecb))
+
+
+
 ## [2.0.1](https://github.com/nicojs/node-surrial/compare/v2.0.0...v2.0.1) (2020-02-14)
 
 
