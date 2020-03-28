@@ -95,6 +95,17 @@ describe('surrial', () => {
       expect(output).deep.eq(input);
     });
 
+    it('should allow custom implementation using the `surrialize` function as part of an array or object', () => {
+      const foo = {
+        surrialize() {
+          return 'bar';
+        }
+      };
+
+      expect(serialize([foo])).eq('[bar]');
+      expect(serialize({ foo })).eq('{"foo":bar}');
+    });
+
     it('should not break for `surrialize` properties that are not functions', () => {
       class Person {
         public age: number;

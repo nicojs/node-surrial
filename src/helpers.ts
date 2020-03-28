@@ -7,8 +7,8 @@ export function isInstanceOf(thing: unknown, whitelist: ReadonlyArray<ClassConst
 
 const SURRIALIZABLE_FN_NAME: keyof Surrializable = 'surrialize';
 
-export function isSurrializable(thing: object): thing is Surrializable {
-  return thing && typeof (thing as any)[SURRIALIZABLE_FN_NAME] === 'function';
+export function isSurrializable(thing: unknown): thing is Surrializable {
+  return thing && (typeof thing === 'object' || typeof thing === 'function') && typeof (thing as any)[SURRIALIZABLE_FN_NAME] === 'function';
 }
 
 function isEcmaScriptClass(constructor: ClassConstructor) {
